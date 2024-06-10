@@ -156,3 +156,8 @@ body {
     font-weight: 700;
     color: cadetblue;
 }
+
+/* AVISO DE MENSAGEM VAZIA */
+.invalid_input {
+    border: 2px solid red;
+  }

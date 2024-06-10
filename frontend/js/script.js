@@ -15,7 +15,7 @@ const colors = [
   "cadetblue",
   "darkgoldenrod",
   "darkseagreen",
-  "conrflowerblue",
+  "cornflowerblue",
   "darkslateblue",
   "darkkhaki",
   "deeppink",
@@ -42,8 +42,6 @@ const createMessageOtherElement = (content, sender, senderColor) => {
   const span = document.createElement("span");
 
   div.classList.add("message_other");
-
-  div.classList.add("message_self");
   span.classList.add("message_sender");
   span.style.color = senderColor;
 
@@ -56,8 +54,8 @@ const createMessageOtherElement = (content, sender, senderColor) => {
 };
 
 const getRandomColor = () => {
-  const radomIndex = Math.floor(Math.random() * colors.length);
-  return colors[radomIndex];
+  const randomIndex = Math.floor(Math.random() * colors.length);
+  return colors[randomIndex];
 };
 
 const scrollScreen = () => {
@@ -77,7 +75,7 @@ const processMessage = ({ data }) => {
 
   chatMessage.appendChild(message);
 
-  scrollScreen()
+  scrollScreen();
 
   // console.log(JSON.parse(data));
 };
@@ -99,14 +97,28 @@ const handleLogin = (event) => {
   //     websocket.send(`Usuário: ${user.name} entrou no chat`);
 };
 
+const isMessageValid = (message) => {
+  return message.trim().length > 0;
+};
+
 const sendMessage = (event) => {
   event.preventDefault();
+
+  const messageContent = chatInput.value;
+
+  if (!isMessageValid(messageContent)) {
+    chatInput.classList.add("invalid_input"); // Adiciona a classe de estilo
+    setTimeout(() => {
+      chatInput.classList.remove("invalid_input"); // Remove a classe após 3 segundos
+    }, 3000);
+    return; // Não envia a mensagem se ela for inválida
+  }
 
   const message = {
     userId: user.id,
     userName: user.name,
     userColor: user.color,
-    content: chatInput.value,
+    content: messageContent,
   };
 
   websocket.send(JSON.stringify(message));
