@@ -92,7 +92,7 @@ const handleLogin = (event) => {
   login.style.display = "none";
   chat.style.display = "flex";
 
-  websocket = new WebSocket("ws://localhost:5050");
+  websocket = new WebSocket("wss://projeto-chat-sd-backend.onrender.com");
   websocket.onmessage = processMessage;
 
   //   websocket.onopen = () =>
