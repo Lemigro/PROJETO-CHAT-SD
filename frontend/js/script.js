@@ -58,6 +58,7 @@ const getRandomColor = () => {
   return colors[randomIndex];
 };
 
+// função para rolar a pagina a cada nova mensagem enviada
 const scrollScreen = () => {
   window.scrollTo({
     top: document.body.scrollHeight,
@@ -68,6 +69,51 @@ const scrollScreen = () => {
 const processMessage = ({ data }) => {
   const { userId, userName, userColor, content } = JSON.parse(data);
 
+  if (content.startsWith("/clima")) {
+    fetch("http://localhost:3000/api/weather")
+      .then((response) => response.json())
+      .then((data) => {
+        const temp_min = data.main.temp_min;
+        const humidity = data.main.humidity;
+        const city = data.name;
+        const message = createMessageSelfElement(`Cidade: ${city}, Temperatura minima: ${temp_min} °C,
+          Umidade: ${humidity}`);
+        chatMessage.appendChild(message);
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching weather:", error));
+    return;
+  }
+
+
+  if (content.startsWith("/imagem gato")) {
+    fetch("http://localhost:3000/api/cat")
+      .then((response) => response.json())
+      .then((data) => {
+        const imageUrl = data.imageUrl;
+        const message = createMessageSelfElement(
+          `<img src="${imageUrl}" alt="Gato">`
+        );
+        chatMessage.appendChild(message);
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching cat image:", error));
+    return;
+  }
+
+  if (content.startsWith("/conselho")) {
+    fetch("http://localhost:3000/api/advice")
+      .then((response) => response.json())
+      .then((data) => {
+        const advice = data.advice;
+        const message = createMessageSelfElement(`Conselho: ${advice}`);
+        chatMessage.appendChild(message);
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching advice:", error));
+    return;
+  }
+
   const message =
     userId == user.id
       ? createMessageSelfElement(content)
@@ -77,7 +123,7 @@ const processMessage = ({ data }) => {
 
   scrollScreen();
 
-  // console.log(JSON.parse(data));
+  console.log(JSON.parse(data));
 };
 
 const handleLogin = (event) => {
@@ -93,6 +139,7 @@ const handleLogin = (event) => {
   websocket = new WebSocket("wss://projeto-chat-sd-backend.onrender.com");
   websocket.onmessage = processMessage;
 
+  console.log(`Usuário: ${user.name} entrou no chat`)
   //   websocket.onopen = () =>
   //     websocket.send(`Usuário: ${user.name} entrou no chat`);
 };
@@ -105,6 +152,27 @@ const sendMessage = (event) => {
   event.preventDefault();
 
   const messageContent = chatInput.value;
+
+  if (messageContent.startsWith("traduzir")) {
+    const [, text, targetLang] = messageContent.split(" ");
+    fetch("http://localhost:3000/api/translate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text, targetLang }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const translation = data.translation;
+        const message = createMessageSelfElement(`Tradução: ${translation}`);
+        chatMessage.appendChild(message);
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error ao traduzir o texto:", error));
+    chatInput.value = "";
+    return;
+  }
 
   if (!isMessageValid(messageContent)) {
     chatInput.classList.add("invalid_input"); // Adiciona a classe de estilo
