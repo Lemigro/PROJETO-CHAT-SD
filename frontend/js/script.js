@@ -70,16 +70,14 @@ const processMessage = ({ data }) => {
   const { userId, userName, userColor, content } = JSON.parse(data);
 
   if (content.startsWith("/clima")) {
-    city = content.split(" ")[1];
+    city = content.split(" ").slice(1).join(" ");
+    console.log("entrei na rota do clima no frontend")
     fetch("http://localhost:3000/api/weather/" + city)
       .then((response) => response.json())
       .then((data) => {
-        const temp_min = data.main.temp_min;
-        const humidity = data.main.humidity;
-        const city = data.name;
         const message =
-          createMessageSelfElement(`Cidade: ${city}, Temperatura minima: ${temp_min} °C,
-          Umidade: ${humidity}`);
+          createMessageSelfElement(`Cidade: ${data.city}, Temperatura minima: ${data.temp_min}°C,
+          Umidade: ${data.humidity}%`);
         chatMessage.appendChild(message);
         scrollScreen();
       })
@@ -104,7 +102,7 @@ const processMessage = ({ data }) => {
 
   if (content.startsWith("/conselho")) {
     fetch("http://localhost:3000/api/advice")
-      .then((response) => response.json())
+      .then((response) => response.text())
       .then((data) => {
         const message = createMessageSelfElement(`Conselho: ${data}`);
         chatMessage.appendChild(message);
@@ -136,12 +134,10 @@ const handleLogin = (event) => {
   login.style.display = "none";
   chat.style.display = "flex";
 
-  websocket = new WebSocket("wss://projeto-chat-sd-backend.onrender.com");
+  websocket = new WebSocket("ws://localhost:8080");
   websocket.onmessage = processMessage;
 
   console.log(`Usuário: ${user.name} entrou no chat`);
-  //   websocket.onopen = () =>
-  //     websocket.send(`Usuário: ${user.name} entrou no chat`);
 };
 
 const isMessageValid = (message) => {
@@ -166,9 +162,11 @@ const sendMessage = (event) => {
     userName: user.name,
     userColor: user.color,
     content: messageContent,
-  };
+  };  
 
   websocket.send(JSON.stringify(message));
+
+  console.log('websocket sended message');
   chatInput.value = "";
 };
 

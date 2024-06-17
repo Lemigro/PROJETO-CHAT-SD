@@ -143,6 +143,11 @@ body {
     align-self: flex-end;
 }
 
+.message_self img, .message_other img {
+    max-width: 100%;
+    height: auto;
+}
+
 .message_other {  
     background-color: #333;
     color: #f2f2f2;

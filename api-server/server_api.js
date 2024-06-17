@@ -12,10 +12,10 @@ app.use(cors());
 app.get("/api/cat", async (req, res) => {
   try {
     const response = await axios.get(
-      "https://api.thecatapi.com/v1/images/search"
+      "https://a25f59e9-b862-478e-8f08-376912e10913-00-382p5a52w8ozj.spock.replit.dev/gato"
     );
-    const imageUrl = response.data[0].url;
-    res.json({ imageUrl });
+    const imageUrl = response.data;
+    res.json( response.data );
   } catch (error) {
     res.status(500).json({ error: "Falha ao receber a imagem do Gato" });
   }
@@ -25,12 +25,13 @@ app.get("/api/cat", async (req, res) => {
 app.get("/api/weather/:city", async (req, res) => {
   const city = req.params.city;
   console.log(city);
-  const apiKey = "0bcf04aa5030f64a15cba6ad627006ea"; // chave API
   try {
     const response = await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
-    );
+      `https://a25f59e9-b862-478e-8f08-376912e10913-00-382p5a52w8ozj.spock.replit.dev/clima/${city}`
+    ); 
+
     res.json(response.data);
+    
   } catch (error) {
     res.status(500).json({ error: "Falha ao receber as informações do clima" });
   }
@@ -38,7 +39,6 @@ app.get("/api/weather/:city", async (req, res) => {
 
 // Rota para obter um conselho aleatório
 app.get("/api/advice", async (req, res) => {
-  console.log("entrei no conselho", response);
   try {
     const response = await axios.get(
       "https://a25f59e9-b862-478e-8f08-376912e10913-00-382p5a52w8ozj.spock.replit.dev/conselho"
