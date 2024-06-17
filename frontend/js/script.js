@@ -118,7 +118,7 @@ const processMessage = ({ data }) => {
     fetch(`http://localhost:3000/api/cep/${cep}`)
       .then((response) => response.json())
       .then((data) => {
-        const message = createMessageSelfElement(`CEP: ${cep}, 
+        const message = createMessageSelfElement(`CONSULTA VIA NÚMERO DO CEP -  CEP: ${cep}, 
           Logradouro: ${data.logradouro}, 
           Bairro: ${data.bairro}, 
           Cidade: ${data.localidade}, 
@@ -139,7 +139,7 @@ const processMessage = ({ data }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {
-          const message = createMessageSelfElement(`CEP: ${data[0].cep}, Logradouro: ${data[0].logradouro}, Bairro: ${data[0].bairro}, Cidade: ${data[0].localidade}, Estado: ${data[0].uf}`);
+          const message = createMessageSelfElement(`CONSULTA VIA ENDEREÇO - CEP: ${data[0].cep}, Logradouro: ${data[0].logradouro}, Bairro: ${data[0].bairro}, Cidade: ${data[0].localidade}, Estado: ${data[0].uf}`);
           chatMessage.appendChild(message);
         } else {
           const message = createMessageSelfElement(`Endereço não encontrado.`);

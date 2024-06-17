@@ -54,7 +54,7 @@ app.get("/api/advice", async (req, res) => {
 app.get("/api/cep/:cep", async (req, res) => {
   const { cep } = req.params;
   try {
-    console.log("entrei no CEP ",cep)
+    console.log("entrei no CEP ", cep)
     const response = await axios.get(`https://a25f59e9-b862-478e-8f08-376912e10913-00-382p5a52w8ozj.spock.replit.dev/cep/${cep}`);
     console.log(response)
     res.json(response.data);
