@@ -112,6 +112,45 @@ const processMessage = ({ data }) => {
     return;
   }
 
+  if (content.startsWith("/cep")) {
+    const cep = content.split(" ")[1];
+    console.log("CEP SCRIPT",cep)
+    fetch(`http://localhost:3000/api/cep/${cep}`)
+      .then((response) => response.json())
+      .then((data) => {
+        const message = createMessageSelfElement(`CEP: ${cep}, 
+          Logradouro: ${data.logradouro}, 
+          Bairro: ${data.bairro}, 
+          Cidade: ${data.localidade}, 
+          Estado: ${data.uf}`);
+        chatMessage.appendChild(message);
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching CEP:", error));
+    return;
+  }
+
+  if (content.startsWith("/endereco")) {
+    const parts = content.split(" ");
+    const uf = parts[1];
+    const cidade = parts[2];
+    const rua = parts.slice(3).join(" ");
+    fetch(`http://localhost:3000/api/cep/${uf}/${cidade}/${rua}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.length > 0) {
+          const message = createMessageSelfElement(`CEP: ${data[0].cep}, Logradouro: ${data[0].logradouro}, Bairro: ${data[0].bairro}, Cidade: ${data[0].localidade}, Estado: ${data[0].uf}`);
+          chatMessage.appendChild(message);
+        } else {
+          const message = createMessageSelfElement(`Endereço não encontrado.`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching address:", error));
+    return;
+  }
+
   const message =
     userId == user.id
       ? createMessageSelfElement(content)
