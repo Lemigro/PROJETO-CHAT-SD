@@ -134,9 +134,9 @@ const handleLogin = (event) => {
   login.style.display = "none";
   chat.style.display = "flex";
 
-  websocket = new WebSocket("ws://localhost:8080");
-  websocket.onmessage = processMessage;
+  websocket = new WebSocket("wss://projeto-chat-sd-backend.onrender.com");
 
+  websocket.onmessage = processMessage;
   console.log(`Usuário: ${user.name} entrou no chat`);
 };
 
@@ -145,6 +145,7 @@ const isMessageValid = (message) => {
 };
 
 const sendMessage = (event) => {
+  // console.log("ENTREI NA MENSAGEM")
   event.preventDefault();
 
   const messageContent = chatInput.value;
@@ -166,7 +167,7 @@ const sendMessage = (event) => {
 
   websocket.send(JSON.stringify(message));
 
-  console.log('websocket sended message');
+  // console.log('websocket sended message');
   chatInput.value = "";
 };
 
