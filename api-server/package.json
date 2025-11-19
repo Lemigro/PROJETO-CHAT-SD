@@ -11,9 +11,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.30.0",
     "@vitalets/google-translate-api": "^9.2.0",
+    "api-server": "file:",
     "axios": "^1.7.2",
     "cors": "^2.8.5",
-    "express": "^4.19.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "projeto-chat-sd": "file:.."
   }
 }

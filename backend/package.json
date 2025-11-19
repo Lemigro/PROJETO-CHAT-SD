@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@vitalets/google-translate-api": "^9.2.0",
+    "backend": "file:",
     "dotenv": "^16.4.5",
+    "projeto-chat-sd": "file:..",
     "ws": "^8.17.0"
   },
   "devDependencies": {

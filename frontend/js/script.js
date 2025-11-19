@@ -66,18 +66,62 @@ const scrollScreen = () => {
   });
 };
 
+// Função para tocar som de animal
+const playAnimalSound = (animal) => {
+  const soundMap = {
+    'cachorro': 'dogSound',
+    'dog': 'dogSound',
+    'au au': 'dogSound',
+    'auau': 'dogSound',
+    'gato': 'catSound',
+    'cat': 'catSound',
+    'miau': 'catSound',
+    'meow': 'catSound',
+    'vaca': 'cowSound',
+    'cow': 'cowSound',
+    'mu': 'cowSound',
+    'moo': 'cowSound'
+  };
+
+  const soundId = soundMap[animal.toLowerCase()];
+  if (soundId) {
+    const audioElement = document.getElementById(soundId);
+    if (audioElement) {
+      audioElement.play().catch(error => {
+        console.error(`Erro ao tocar som de ${animal}:`, error);
+      });
+    }
+  }
+};
+
+// Função para verificar se a mensagem contém nome ou som de animal
+const checkAnimalSound = (content) => {
+  const animals = ['cachorro', 'dog', 'au au', 'auau', 'gato', 'cat', 'miau', 'meow', 'vaca', 'cow', 'mu', 'moo'];
+  const lowerContent = content.toLowerCase();
+  
+  for (const animal of animals) {
+    if (lowerContent.includes(animal)) {
+      playAnimalSound(animal);
+      return true;
+    }
+  }
+  return false;
+};
+
 const processMessage = ({ data }) => {
   const { userId, userName, userColor, content } = JSON.parse(data);
 
+  // Verificar e tocar som de animal
+  checkAnimalSound(content);
+
   if (content.startsWith("/clima")) {
-    city = content.split(" ").slice(1).join(" ");
+    const city = content.split(" ").slice(1).join(" ");
     console.log("entrei na rota do clima no frontend")
     fetch("http://localhost:3000/api/weather/" + city)
       .then((response) => response.json())
       .then((data) => {
         const message =
-          createMessageSelfElement(`Cidade: ${data.city}, Temperatura minima: ${data.temp_min}°C,
-          Umidade: ${data.humidity}%`);
+          createMessageSelfElement(`Cidade: ${data.city}, Temperatura mínima: ${data.temp_min}, Temperatura máxima: ${data.temp_max}, Umidade: ${data.humidity}`);
         chatMessage.appendChild(message);
         scrollScreen();
       })
@@ -151,6 +195,183 @@ const processMessage = ({ data }) => {
     return;
   }
 
+  // CRUD de Pessoas
+  if (content.startsWith("/pessoas")) {
+    fetch("http://localhost:3001/api/pessoas")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.length === 0) {
+          const message = createMessageSelfElement("Nenhuma pessoa cadastrada.");
+          chatMessage.appendChild(message);
+        } else {
+          const pessoasList = data.map(p => 
+            `ID: ${p.id}, Nome: ${p.nome}, Idade: ${p.idade}, CPF: ${p.cpf}, Email: ${p.email}, Sexo: ${p.sexo}`
+          ).join("<br>");
+          const message = createMessageSelfElement(`<strong>Lista de Pessoas:</strong><br>${pessoasList}`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching pessoas:", error));
+    return;
+  }
+
+  if (content.startsWith("/pessoa criar")) {
+    const parts = content.split("|");
+    if (parts.length < 6) {
+      const message = createMessageSelfElement("Formato: /pessoa criar |Nome|Idade|CPF|Email|Sexo<br>Exemplo: /pessoa criar |João Silva|25|12345678900|joao@email.com|M");
+      chatMessage.appendChild(message);
+      scrollScreen();
+      return;
+    }
+    const [, nome, idade, cpf, email, sexo] = parts;
+    fetch("http://localhost:3001/api/pessoas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: nome.trim(), idade: parseInt(idade.trim()), cpf: cpf.trim(), email: email.trim(), sexo: sexo.trim() })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          const message = createMessageSelfElement(`Erro: ${data.error}`);
+          chatMessage.appendChild(message);
+        } else {
+          const message = createMessageSelfElement(`Pessoa criada com sucesso!<br>ID: ${data.id}, Nome: ${data.nome}, Idade: ${data.idade}, CPF: ${data.cpf}, Email: ${data.email}, Sexo: ${data.sexo}`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error creating pessoa:", error));
+    return;
+  }
+
+  if (content.startsWith("/pessoa buscar")) {
+    const id = content.split(" ")[2];
+    if (!id) {
+      const message = createMessageSelfElement("Formato: /pessoa buscar {id}<br>Exemplo: /pessoa buscar 1");
+      chatMessage.appendChild(message);
+      scrollScreen();
+      return;
+    }
+    fetch(`http://localhost:3001/api/pessoas/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          const message = createMessageSelfElement(`Erro: ${data.error}`);
+          chatMessage.appendChild(message);
+        } else {
+          const message = createMessageSelfElement(`Pessoa encontrada:<br>ID: ${data.id}, Nome: ${data.nome}, Idade: ${data.idade}, CPF: ${data.cpf}, Email: ${data.email}, Sexo: ${data.sexo}`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error fetching pessoa:", error));
+    return;
+  }
+
+  if (content.startsWith("/pessoa deletar")) {
+    const id = content.split(" ")[2];
+    if (!id) {
+      const message = createMessageSelfElement("Formato: /pessoa deletar {id}<br>Exemplo: /pessoa deletar 1");
+      chatMessage.appendChild(message);
+      scrollScreen();
+      return;
+    }
+    fetch(`http://localhost:3001/api/pessoas/${id}`, {
+      method: "DELETE"
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          const message = createMessageSelfElement(`Erro: ${data.error}`);
+          chatMessage.appendChild(message);
+        } else {
+          const message = createMessageSelfElement(`Pessoa deletada com sucesso!`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => console.error("Error deleting pessoa:", error));
+    return;
+  }
+
+  // Gemini - Chat Completion
+  if (content.startsWith("/gemini") || content.startsWith("/chatgpt") || content.startsWith("/chat")) {
+    const messageText = content.replace(/^\/gemini\s+|\/chatgpt\s+|\/chat\s+/, "");
+    if (!messageText) {
+      const message = createMessageSelfElement("Formato: /gemini {sua mensagem} ou /chat {sua mensagem}<br>Exemplo: /gemini O que é JavaScript?");
+      chatMessage.appendChild(message);
+      scrollScreen();
+      return;
+    }
+    fetch("http://localhost:3000/api/openai/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: messageText })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          const message = createMessageSelfElement(`Erro: ${data.error}`);
+          chatMessage.appendChild(message);
+        } else {
+          const message = createMessageSelfElement(`<strong>Gemini:</strong> ${data.response}`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => {
+        console.error("Error calling Gemini chat:", error);
+        const message = createMessageSelfElement("Erro ao conectar com Gemini. Verifique se a API key está configurada.");
+        chatMessage.appendChild(message);
+        scrollScreen();
+      });
+    return;
+  }
+
+  // Gemini - Geração de Imagem (nota: requer configuração adicional)
+  if (content.startsWith("/gere uma imagem") || content.startsWith("/gerar imagem") || content.startsWith("/imagem")) {
+    let prompt = "";
+    if (content.startsWith("/gere uma imagem")) {
+      prompt = content.replace("/gere uma imagem de", "").replace("/gere uma imagem", "").trim();
+    } else if (content.startsWith("/gerar imagem")) {
+      prompt = content.replace("/gerar imagem de", "").replace("/gerar imagem", "").trim();
+    } else if (content.startsWith("/imagem")) {
+      prompt = content.replace("/imagem", "").trim();
+    }
+    
+    if (!prompt) {
+      const message = createMessageSelfElement("Formato: /gere uma imagem de {descrição}<br>Exemplo: /gere uma imagem de um gato astronauta");
+      chatMessage.appendChild(message);
+      scrollScreen();
+      return;
+    }
+    
+    fetch("http://localhost:3000/api/openai/image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: prompt })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          const message = createMessageSelfElement(`Erro: ${data.error}`);
+          chatMessage.appendChild(message);
+        } else {
+          const message = createMessageSelfElement(`<img src="${data.imageUrl}" alt="${prompt}" style="max-width: 100%; border-radius: 8px;">`);
+          chatMessage.appendChild(message);
+        }
+        scrollScreen();
+      })
+      .catch((error) => {
+        console.error("Error generating image:", error);
+        const message = createMessageSelfElement("Erro ao gerar imagem. Verifique se a API key está configurada.");
+        chatMessage.appendChild(message);
+        scrollScreen();
+      });
+    return;
+  }
+
   const message =
     userId == user.id
       ? createMessageSelfElement(content)
@@ -159,8 +380,6 @@ const processMessage = ({ data }) => {
   chatMessage.appendChild(message);
 
   scrollScreen();
-
-  // console.log(JSON.parse(data));
 };
 
 const handleLogin = (event) => {
@@ -206,7 +425,6 @@ const sendMessage = (event) => {
 
   websocket.send(JSON.stringify(message));
 
-  // console.log('websocket sended message');
   chatInput.value = "";
 };
 

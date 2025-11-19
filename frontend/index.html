@@ -44,9 +44,19 @@
 
     </section>
      <!-- Elementos de Áudio -->
-     <audio id="dogSound" src="#"></audio>
-     <audio id="catSound" src="#"></audio>
-     <audio id="cowSound" src="#"></audio>
+     <!-- Nota: Adicione os arquivos de som na pasta sounds/ ou use URLs de sons de animais -->
+     <audio id="dogSound" preload="auto">
+       <source src="./sounds/dog.mp3" type="audio/mpeg">
+       <source src="https://www2.cs.uic.edu/~i101/SoundFiles/dog.wav" type="audio/wav">
+     </audio>
+     <audio id="catSound" preload="auto">
+       <source src="./sounds/cat.mp3" type="audio/mpeg">
+       <source src="https://www2.cs.uic.edu/~i101/SoundFiles/cat.wav" type="audio/wav">
+     </audio>
+     <audio id="cowSound" preload="auto">
+       <source src="./sounds/cow.mp3" type="audio/mpeg">
+       <source src="https://www2.cs.uic.edu/~i101/SoundFiles/cow.wav" type="audio/wav">
+     </audio>
 
     <script src="./js/script.js"></script>
 

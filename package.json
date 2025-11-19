@@ -1,0 +1,25 @@
+{
+  "name": "projeto-chat-sd",
+  "version": "1.0.0",
+  "description": "Projeto de Chat em Tempo Real",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix api-server && npm install --prefix crud-pessoas",
+    "start:backend": "npm start --prefix backend",
+    "start:api": "npm start --prefix api-server",
+    "start:crud": "npm start --prefix crud-pessoas",
+    "start:frontend": "http-server frontend -p 8000 -c-1",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:api\" \"npm run start:crud\" \"npm run start:frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:api": "npm start --prefix api-server",
+    "dev:crud": "npm run dev --prefix crud-pessoas",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:api\" \"npm run dev:crud\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "http-server": "^14.1.1"
+  }
+}
+
